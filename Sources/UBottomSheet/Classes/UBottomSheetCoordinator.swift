@@ -141,6 +141,7 @@ public class UBottomSheetCoordinator: NSObject {
     public func addSheet(_ item: UIViewController,
                          to parent: UIViewController,
                          animated: Bool = true,
+                         _ padding : CGFloat = 0,
                          didContainerCreate: ((UIView) -> Void)? = nil,
                          completion: (() -> Void)? = nil) {
          self.usesNavigationController = item is UINavigationController
@@ -148,7 +149,7 @@ public class UBottomSheetCoordinator: NSObject {
          self.container = container
          parent.view.addSubview(container)
          let position = dataSource.initialPosition(availableHeight)
-         parent.ub_add(item, in: container, animated: animated, topInset: position) { [weak self] in
+         parent.ub_add(item, in: container, animated: animated, topInset: position,padding: padding) { [weak self] in
              guard let sSelf = self else {
                 return
              }

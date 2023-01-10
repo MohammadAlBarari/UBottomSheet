@@ -13,17 +13,18 @@ extension UIViewController {
                 in container: UIView,
                 animated: Bool,
                 topInset: CGFloat,
+                padding : CGFloat = 0,
                 completion: (() -> Void)? = nil) {
         addChild(child)
         container.addSubview(child.view)
         child.didMove(toParent: self)
-        let frame = CGRect(x: view.frame.minX,
+        let frame = CGRect(x: view.frame.minX + padding,
                            y: view.frame.minY,
-                           width: view.frame.width,
+                           width: view.frame.width - 2*padding,
                            height: view.frame.maxY - topInset)
         if animated {
             container.frame = frame.offsetBy(dx: 0, dy: frame.height)
-            child.view.frame = container.bounds
+            child.view.frame = frame
             UIView.animate(withDuration: 0.3, animations: {
                 container.frame = frame
             }) { _ in
@@ -34,7 +35,7 @@ extension UIViewController {
             child.view.frame = container.bounds
             completion?()
         }
-        
+
     }
 
     func ub_remove() {
