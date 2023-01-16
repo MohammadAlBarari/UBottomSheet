@@ -38,6 +38,7 @@ public class UBottomSheetCoordinator: NSObject {
     public var availableHeight: CGFloat {
         return parent.view.frame.height
     }
+    private var padding :CGFloat = 0
     
     private var cornerRadius: CGFloat = 0 {
         didSet {
@@ -144,9 +145,11 @@ public class UBottomSheetCoordinator: NSObject {
                          _ padding : CGFloat = 0,
                          didContainerCreate: ((UIView) -> Void)? = nil,
                          completion: (() -> Void)? = nil) {
+        self.padding = padding
          self.usesNavigationController = item is UINavigationController
          let container = PassThroughView()
          self.container = container
+        self.container?.clipsToBounds = true
          parent.view.addSubview(container)
          let position = dataSource.initialPosition(availableHeight)
          parent.ub_add(item, in: container, animated: animated, topInset: position,padding: padding) { [weak self] in
@@ -156,8 +159,9 @@ public class UBottomSheetCoordinator: NSObject {
              sSelf.delegate?.bottomSheet(container,
                                          didPresent: .finished(position, sSelf.calculatePercent(at: position)))
             completion?()
+
          }
-         didContainerCreate?(container)
+        didContainerCreate?(container)
          setPosition(dataSource.initialPosition(availableHeight), animated: false)
      }
     
@@ -185,9 +189,9 @@ public class UBottomSheetCoordinator: NSObject {
      */
     private func getInitialFrame() -> CGRect {
         let minY = parent.view.bounds.minY + dataSource.initialPosition(availableHeight)
-        return CGRect(x: parent.view.bounds.minX,
+        return CGRect(x: parent.view.bounds.minX + padding,
                       y: minY,
-                      width: parent.view.bounds.width,
+                      width: parent.view.bounds.width - 2*padding,
                       height: parent.view.bounds.maxY - minY)
     }
     
@@ -571,7 +575,7 @@ public class UBottomSheetCoordinator: NSObject {
         }
 
         let height = max(availableHeight - minSheetPosition!, availableHeight - newY)
-        let frame = CGRect(x: 0, y: newY, width: oldFrame.width, height: height)
+        let frame = CGRect(x: padding, y: newY, width: parent.view.frame.width - 2*padding, height: height)
         container?.frame = frame
 
         self.delegate?.bottomSheet(self.container,
@@ -604,7 +608,7 @@ public class UBottomSheetCoordinator: NSObject {
         }
         let oldFrame = container!.frame
         let height = max(availableHeight - minSheetPosition!, availableHeight - position)
-        let frame = CGRect(x: 0, y: position, width: oldFrame.width, height: height)
+        let frame = CGRect(x: padding, y: position, width: parent.view.bounds.width - 2*padding, height: height)
 
         self.delegate?.bottomSheet(self.container,
                                    didChange: .willFinish(position, self.calculatePercent(at: position)))

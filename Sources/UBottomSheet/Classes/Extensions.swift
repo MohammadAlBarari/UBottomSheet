@@ -24,7 +24,7 @@ extension UIViewController {
                            height: view.frame.maxY - topInset)
         if animated {
             container.frame = frame.offsetBy(dx: 0, dy: frame.height)
-            child.view.frame = frame
+            child.view.frame = container.bounds
             UIView.animate(withDuration: 0.3, animations: {
                 container.frame = frame
             }) { _ in
