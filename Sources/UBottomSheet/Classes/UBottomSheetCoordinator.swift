@@ -16,6 +16,7 @@ public enum SheetTranslationState {
 
 public class UBottomSheetCoordinator: NSObject {
     public weak var parent: UIViewController!
+    public weak var item: UIViewController!
     private var container: UIView?
     public weak var dataSource: UBottomSheetCoordinatorDataSource! {
         didSet {
@@ -146,6 +147,7 @@ public class UBottomSheetCoordinator: NSObject {
                          didContainerCreate: ((UIView) -> Void)? = nil,
                          completion: (() -> Void)? = nil) {
         self.padding = padding
+        self.item = item
          self.usesNavigationController = item is UINavigationController
          let container = PassThroughView()
          self.container = container
@@ -156,7 +158,7 @@ public class UBottomSheetCoordinator: NSObject {
              guard let sSelf = self else {
                 return
              }
-             sSelf.delegate?.bottomSheet(container,
+             sSelf.delegate?.bottomSheet(container,item: self?.item ?? <#default value#>,parent: self?.parent,
                                          didPresent: .finished(position, sSelf.calculatePercent(at: position)))
             completion?()
 
@@ -320,7 +322,7 @@ public class UBottomSheetCoordinator: NSObject {
             block?(container)
             return
         }
-        self.delegate?.bottomSheetDidRemoved(from: self.container)
+        self.delegate?.bottomSheetDidRemoved(from: self.container,item: self.item,parent: self.parent)
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             guard let sSelf = self else {
                 return
@@ -579,7 +581,7 @@ public class UBottomSheetCoordinator: NSObject {
         let frame = CGRect(x: padding, y: newY, width: parent.view.frame.width - 2*padding, height: height)
         container?.frame = frame
 
-        self.delegate?.bottomSheet(self.container,
+        self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
                                    didChange: .progressing(frame.minY, calculatePercent(at: frame.minY)))
     }
 
@@ -611,13 +613,13 @@ public class UBottomSheetCoordinator: NSObject {
         let height = max(availableHeight - minSheetPosition!, availableHeight - position)
         let frame = CGRect(x: padding, y: position, width: parent.view.bounds.width - 2*padding, height: height)
 
-        self.delegate?.bottomSheet(self.container,
+        self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
                                    didChange: .willFinish(position, self.calculatePercent(at: position)))
 
         if animated {
             self.lastAnimatedValue = position
             dataSource.animator?.animate(animations: {
-                self.delegate?.bottomSheet(self.container, finishTranslateWith: { (anim) in
+                self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent, finishTranslateWith: { (anim) in
                     anim(self.calculatePercent(at: position))
                 })
                 self.container!.frame = frame
@@ -626,7 +628,7 @@ public class UBottomSheetCoordinator: NSObject {
                 if self.lastAnimatedValue != position {
                     return
                 }
-                self.delegate?.bottomSheet(self.container,
+                self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
                                            didChange: .finished(position, self.calculatePercent(at: position)))
                 if position >= self.availableHeight {
                     self.removeSheet()
@@ -634,7 +636,7 @@ public class UBottomSheetCoordinator: NSObject {
             })
         } else {
             self.container!.frame = frame
-            self.delegate?.bottomSheet(self.container,
+            self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
                                        didChange: .finished(position, self.calculatePercent(at: position)))
         }
     }

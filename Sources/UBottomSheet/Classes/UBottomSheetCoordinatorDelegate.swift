@@ -8,18 +8,18 @@
 
 import UIKit
 
-///Sheet delegate
+/// Sheet delegate
 public protocol UBottomSheetCoordinatorDelegate: AnyObject {
-    func bottomSheet(_ container: UIView?, finishTranslateWith extraAnimation: @escaping ((_ percent: CGFloat) -> Void) -> Void)
-    func bottomSheet(_ container: UIView?, didChange state: SheetTranslationState)
-    func bottomSheet(_ container: UIView?, didPresent state: SheetTranslationState)
-    func bottomSheetDidRemoved(from container: UIView?)
+    func bottomSheet(_ container: UIView?, item: UIViewController?, parent: UIViewController?, finishTranslateWith extraAnimation: @escaping ((_ percent: CGFloat) -> Void) -> Void)
+    func bottomSheet(_ container: UIView?, item: UIViewController?, parent: UIViewController?, didChange state: SheetTranslationState)
+    func bottomSheet(_ container: UIView?, item: UIViewController?, parent: UIViewController?, didPresent state: SheetTranslationState)
+    func bottomSheetDidRemoved(from container: UIView?, item: UIViewController?, parent: UIViewController?)
 }
 
-///Default empty implementations
-extension UBottomSheetCoordinatorDelegate {
-    public func bottomSheet(_ container: UIView?, finishTranslateWith extraAnimation: @escaping ((_ percent: CGFloat) -> Void) -> Void) { }
-    public func bottomSheet(_ container: UIView?, didChange state: SheetTranslationState) { }
-    public func bottomSheet(_ container: UIView?, didPresent state: SheetTranslationState) { }
-    public func bottomSheetDidRemoved(from container: UIView?){}
-}
+/// Default empty implementations
+//public extension UBottomSheetCoordinatorDelegate {
+//    func bottomSheet(_ container: UIView?, item: UIViewController?, parent: UIViewController?, finishTranslateWith extraAnimation: @escaping ((_ percent: CGFloat) -> Void) -> Void) {}
+//    func bottomSheet(_ container: UIView?, item: UIViewController?, parent: UIViewController?, didChange state: SheetTranslationState) {}
+//    func bottomSheet(_ container: UIView?, item: UIViewController?, parent: UIViewController?, didPresent state: SheetTranslationState) {}
+//    func bottomSheetDidRemoved(from container: UIView?, item: UIViewController?, parent: UIViewController?) {}
+//}
