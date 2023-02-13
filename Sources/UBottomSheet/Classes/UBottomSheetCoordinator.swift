@@ -158,7 +158,7 @@ public class UBottomSheetCoordinator: NSObject {
              guard let sSelf = self else {
                 return
              }
-             sSelf.delegate?.bottomSheet(container,item: self?.item ?? <#default value#>,parent: self?.parent,
+             sSelf.delegate?.bottomSheet(container,item: self?.item,parent: self?.parent,
                                          didPresent: .finished(position, sSelf.calculatePercent(at: position)))
             completion?()
 
