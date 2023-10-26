@@ -9,9 +9,9 @@
 import UIKit
 
 public enum SheetTranslationState {
-    case progressing(_ minYPosition: CGFloat, _ percent: CGFloat) //currently updating
-    case willFinish(_ minYPosition: CGFloat, _ percent: CGFloat) //animation start
-    case finished(_ minYPosition: CGFloat, _ percent: CGFloat) //animation end
+    case progressing(_ minYPosition: CGFloat, _ percent: CGFloat) // currently updating
+    case willFinish(_ minYPosition: CGFloat, _ percent: CGFloat) // animation start
+    case finished(_ minYPosition: CGFloat, _ percent: CGFloat) // animation end
 }
 
 public class UBottomSheetCoordinator: NSObject {
@@ -24,22 +24,24 @@ public class UBottomSheetCoordinator: NSObject {
             maxSheetPosition = dataSource.sheetPositions(availableHeight).max()
         }
     }
+
     public weak var delegate: UBottomSheetCoordinatorDelegate?
     private var minSheetPosition: CGFloat?
     private var maxSheetPosition: CGFloat?
-    ///View controllers which conform to Draggable protocol
+    /// View controllers which conform to Draggable protocol
     public var draggables: [DraggableItem] = []
-    ///Drop shadow view behind container.
+    /// Drop shadow view behind container.
     private var dropShadowView: PassThroughView?
     /// accept difference equal if in tolerance
     private var tolerance: CGFloat = 0.0000001
-    ///set true if sheet view controller is embedded in a UINavigationController
+    /// set true if sheet view controller is embedded in a UINavigationController
     public var usesNavigationController: Bool = false
 
     public var availableHeight: CGFloat {
         return parent.view.frame.height
     }
-    private var padding :CGFloat = 0
+
+    private var padding: CGFloat = 0
 
     private var cornerRadius: CGFloat = 0 {
         didSet {
@@ -69,7 +71,7 @@ public class UBottomSheetCoordinator: NSObject {
     public init(parent: UIViewController, delegate: UBottomSheetCoordinatorDelegate? = nil) {
         super.init()
         self.parent = parent
-        self.dataSource = parent
+        dataSource = parent
         self.delegate = delegate
 
         minSheetPosition = dataSource.sheetPositions(availableHeight).min()
@@ -110,7 +112,7 @@ public class UBottomSheetCoordinator: NSObject {
      */
     public func createContainer(with config: @escaping (UIView) -> Void) {
         let view = PassThroughView()
-        self.container = view
+        container = view
         config(view)
         container?.pinToEdges(to: parent.view)
         container?.constraint(parent, for: .top)?.constant = dataSource.sheetPositions(availableHeight)[0]
@@ -143,29 +145,29 @@ public class UBottomSheetCoordinator: NSObject {
     public func addSheet(_ item: UIViewController,
                          to parent: UIViewController,
                          animated: Bool = true,
-                         _ padding : CGFloat = 0,
+                         _ padding: CGFloat = 0,
                          didContainerCreate: ((UIView) -> Void)? = nil,
-                         completion: (() -> Void)? = nil) {
+                         completion: (() -> Void)? = nil)
+    {
         self.padding = padding
         self.item = item
-         self.usesNavigationController = item is UINavigationController
-         let container = PassThroughView()
-         self.container = container
+        usesNavigationController = item is UINavigationController
+        let container = PassThroughView()
+        self.container = container
         self.container?.clipsToBounds = true
-         parent.view.addSubview(container)
-         let position = dataSource.initialPosition(availableHeight)
-         parent.ub_add(item, in: container, animated: animated, topInset: position,padding: padding) { [weak self] in
-             guard let sSelf = self else {
+        parent.view.addSubview(container)
+        let position = dataSource.initialPosition(availableHeight)
+        parent.ub_add(item, in: container, animated: animated, topInset: position, padding: padding) { [weak self] in
+            guard let sSelf = self else {
                 return
-             }
-             sSelf.delegate?.bottomSheet(container,item: self?.item,parent: self?.parent,
-                                         didPresent: .finished(position, sSelf.calculatePercent(at: position)))
+            }
+            sSelf.delegate?.bottomSheet(container, item: self?.item, parent: self?.parent,
+                                        didPresent: .finished(position, sSelf.calculatePercent(at: position)))
             completion?()
-
-         }
+        }
         didContainerCreate?(container)
-         setPosition(dataSource.initialPosition(availableHeight), animated: false)
-     }
+        setPosition(dataSource.initialPosition(availableHeight), animated: false)
+    }
 
     /**
      Adds a new view child controller to the current container view
@@ -173,7 +175,7 @@ public class UBottomSheetCoordinator: NSObject {
      - parameter item: view controller which conforms to the Draggable protocol
      - parameter completion: called upon completion of animation
      */
-    public func addSheetChild(_ item: DraggableItem, completion:  ((Bool) -> Void)? = nil) {
+    public func addSheetChild(_ item: DraggableItem, completion: ((Bool) -> Void)? = nil) {
         parent.addChild(item)
         container!.addSubview(item.view)
         item.didMove(toParent: parent)
@@ -214,7 +216,7 @@ public class UBottomSheetCoordinator: NSObject {
                                                         bottom: 0,
                                                         right: 0))
 
-        self.dropShadowView?.layer.masksToBounds = false
+        dropShadowView?.layer.masksToBounds = false
         if config == nil {
             applyDefaultShadowParams()
             clearShadowBackground()
@@ -237,9 +239,9 @@ public class UBottomSheetCoordinator: NSObject {
         dropShadowView?.layer.shadowPath = UIBezierPath(roundedRect: getInitialFrame(),
                                                         cornerRadius: cornerRadius).cgPath
         dropShadowView?.layer.shadowColor = UIColor.black.cgColor
-        dropShadowView?.layer.shadowRadius = CGFloat.init(10)
+        dropShadowView?.layer.shadowRadius = CGFloat(10)
 //        dropShadowView?.layer.shadowOpacity = Float.init(0.5)
-        dropShadowView?.layer.shadowOffset = CGSize.init(width: 0.0, height: 4.0)
+        dropShadowView?.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
         let animation = CABasicAnimation(keyPath: "shadowOpacity")
         animation.fromValue = 0.0
         animation.toValue = 0.5
@@ -268,29 +270,29 @@ public class UBottomSheetCoordinator: NSObject {
      - parameter radius: corner radius
      */
     public func setCornerRadius(_ radius: CGFloat) {
-        self.cornerRadius = radius
+        cornerRadius = radius
     }
 
     /**
-      Set sheet top constraint value to the given new y position.
+     Set sheet top constraint value to the given new y position.
 
-      - parameter minYPosition: new y position.
-      - parameter animated: pass true to animate sheet position change; false otherwise.
-      */
-     public func setPosition(_ minYPosition: CGFloat, animated: Bool) {
-         self.endTranslate(to: minYPosition, animated: animated)
-     }
+     - parameter minYPosition: new y position.
+     - parameter animated: pass true to animate sheet position change; false otherwise.
+     */
+    public func setPosition(_ minYPosition: CGFloat, animated: Bool) {
+        endTranslate(to: minYPosition, animated: animated)
+    }
 
-     /**
-      Set sheet top constraint value to the nearest sheet positions to given y position.
+    /**
+     Set sheet top constraint value to the nearest sheet positions to given y position.
 
-      - parameter minYPosition: new y position.
-      - parameter animated: pass true to animate sheet position change; false otherwise.
-      */
-     public func setToNearest(_ pos: CGFloat, animated: Bool) {
-         let y = dataSource.sheetPositions(availableHeight).nearest(to: pos)
-         setPosition(y, animated: animated)
-     }
+     - parameter minYPosition: new y position.
+     - parameter animated: pass true to animate sheet position change; false otherwise.
+     */
+    public func setToNearest(_ pos: CGFloat, animated: Bool) {
+        let y = dataSource.sheetPositions(availableHeight).nearest(to: pos)
+        setPosition(y, animated: animated)
+    }
 
     /**
      Remove child view controller from the container.
@@ -303,7 +305,7 @@ public class UBottomSheetCoordinator: NSObject {
         let _item = usesNavigationController ? item.navigationController! : item
         UIView.animate(withDuration: 0.3, animations: {
             _item.view.frame = _item.view.frame.offsetBy(dx: 0, dy: _item.view.frame.height)
-        }) { (finished) in
+        }) { finished in
             _item.ub_remove()
             completion?(finished)
         }
@@ -316,25 +318,24 @@ public class UBottomSheetCoordinator: NSObject {
      - parameter completion: called upon completion of animation
 
      */
-    public func removeSheet(_ block: ((_ container: UIView?) -> Void)? = nil, completion: ((Bool) -> Void)? = nil) {
-        self.draggables.removeAll()
+    public func removeSheet(_ block: ((_ container: UIView?) -> Void)? = nil, completion: ((Bool) -> Void)? = nil, animationDuration: Double = 0.3) {
+        draggables.removeAll()
         guard block == nil else {
             block?(container)
             return
         }
-        self.delegate?.bottomSheetDidRemoved(from: self.container,item: self.item,parent: self.parent)
-        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+        delegate?.bottomSheetDidRemoved(from: container, item: item, parent: parent)
+        UIView.animate(withDuration: animationDuration, animations: { [weak self] in
             guard let sSelf = self else {
                 return
             }
-            sSelf.container!.frame = sSelf.container!.frame.offsetBy(dx: 0, dy:  sSelf.parent.view.frame.height)
-        }) { [weak self ] finished in
+            sSelf.container!.frame = sSelf.container!.frame.offsetBy(dx: 0, dy: sSelf.parent.view.frame.height)
+        }) { [weak self] finished in
             self?.container?.removeFromSuperview()
             self?.removeDropShadow()
             completion?(finished)
         }
     }
-
 
     /**
      Pan gesture recognizer already set up
@@ -342,7 +343,7 @@ public class UBottomSheetCoordinator: NSObject {
      - parameter item: view controller which conforms to the Draggable protocol
      */
     private func isTracking<T: DraggableItem>(item: T) -> Bool {
-        return draggables.contains { (vc) -> Bool in
+        return draggables.contains { vc -> Bool in
             vc == item
         }
     }
@@ -357,42 +358,43 @@ public class UBottomSheetCoordinator: NSObject {
             return
         }
         item.draggableView()?.panGestureRecognizer.addTarget(self, action: #selector(handleScrollPan(_:)))
-        let pan = UIPanGestureRecognizer(target: self, action:  #selector(handleViewPan(_:)))
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handleViewPan(_:)))
         item.view.addGestureRecognizer(pan)
-        let navBarPan = UIPanGestureRecognizer(target: self, action:  #selector(handleViewPan(_:)))
+        let navBarPan = UIPanGestureRecognizer(target: self, action: #selector(handleViewPan(_:)))
         pan.delegate = self
         navBarPan.delegate = self
         item.navigationController?.navigationBar.addGestureRecognizer(navBarPan)
-//        item.draggableView()?.gestureRecognizers?.forEach({ (recognizer) in
-//            print("log: ", recognizer.classForCoder, " ", recognizer.isEnabled)
-//            let clazz = recognizer.classForCoder.description()
-//            if (clazz.contains("_UISwipeDismissalGestureRecognizer")
-//                    || !clazz.contains("UIScrollViewPanGestureRecognizer")){
-//                pan.require(toFail: recognizer)
-//                navBarPan.require(toFail: recognizer)
-//            }
-//        })
+        item.draggableView()?.gestureRecognizers?.forEach { recognizer in
+            print("log: ", recognizer.classForCoder, " ", recognizer.isEnabled)
+            let clazz = recognizer.classForCoder.description()
+            if clazz.contains("_UISwipeDismissalGestureRecognizer")
+                || !clazz.contains("UIScrollViewPanGestureRecognizer")
+            {
+                pan.require(toFail: recognizer)
+                navBarPan.require(toFail: recognizer)
+            }
+        }
         draggables.append(item)
     }
 
-    func stopTracking<T: DraggableItem>(item: T){
-        draggables.removeAll { (vc) -> Bool in
+    func stopTracking<T: DraggableItem>(item: T) {
+        draggables.removeAll { vc -> Bool in
             vc == item
         }
     }
 
     /**
-     Container view pan gesture event
-     - parameter recognizer: view pan gesture  object.
-    */
+      Container view pan gesture event
+      - parameter recognizer: view pan gesture  object.
+     */
     @objc private func handleViewPan(_ recognizer: UIPanGestureRecognizer) {
         handlePan(recognizer)
     }
 
     /**
-     Scrollable view pan gesture event
-     - parameter recognizer: scroll view pan gesture object.
-    */
+      Scrollable view pan gesture event
+      - parameter recognizer: scroll view pan gesture object.
+     */
     @objc private func handleScrollPan(_ recognizer: UIPanGestureRecognizer) {
         guard let scrollView = recognizer.view as? UIScrollView else {
             return
@@ -406,11 +408,11 @@ public class UBottomSheetCoordinator: NSObject {
     private var lastY: CGFloat = 0
 
     /**
-     Common handler for view and scroll view pan gesture event. drives the sheet according to the container view or scroll view gesture events.
+      Common handler for view and scroll view pan gesture event. drives the sheet according to the container view or scroll view gesture events.
 
-     - parameter recognizer: Pan gesture recognizer object.
-     - parameter scrollView: set if scrollView gesture event
-    */
+      - parameter recognizer: Pan gesture recognizer object.
+      - parameter scrollView: set if scrollView gesture event
+     */
     private func handlePan(_ recognizer: UIPanGestureRecognizer, scrollView: UIScrollView? = nil) {
         let dy = recognizer.translation(in: recognizer.view).y
         let vel = recognizer.velocity(in: recognizer.view)
@@ -419,7 +421,7 @@ public class UBottomSheetCoordinator: NSObject {
         case .began:
             lastY = 0
             if let scroll = scrollView {
-                //set last contentOffset y value by adding 'dy' i.e. pre pan gesture happened.
+                // set last contentOffset y value by adding 'dy' i.e. pre pan gesture happened.
                 lastContentOffset.y = scroll.contentOffset.y + dy
             }
             totalTranslationMinY = minSheetPosition!
@@ -431,22 +433,21 @@ public class UBottomSheetCoordinator: NSObject {
              .cancelled,
              .failed:
             guard let scroll = scrollView else {
-                self.finishDragging(with: vel, position: container!.frame.minY + dy - lastY)
+                finishDragging(with: vel, position: container!.frame.minY + dy - lastY)
                 return
             }
             let minY = container!.frame.minY
             switch dragDirection(vel) {
             case .up where minY - minSheetPosition! > tolerance:
                 scroll.setContentOffset(lastContentOffset, animated: false)
-                self.finishDragging(with: vel, position: minY)
+                finishDragging(with: vel, position: minY)
             default:
                 if !isSheetPosition(minY) {
-                    self.finishDragging(with: vel, position: minY)
+                    finishDragging(with: vel, position: minY)
                 }
             }
         default: break
         }
-
     }
 
     /**
@@ -459,10 +460,10 @@ public class UBottomSheetCoordinator: NSObject {
     func translate(with velocity: CGPoint, dy: CGFloat, scrollView: UIScrollView? = nil) {
         if let scroll = scrollView {
             switch dragDirection(velocity) {
-            case .up where (container!.frame.minY - minSheetPosition! > tolerance):
+            case .up where container!.frame.minY - minSheetPosition! > tolerance:
                 applyTranslation(dy: dy - lastY)
                 scroll.contentOffset.y = lastContentOffset.y
-            case .down where scroll.contentOffset.y <= 0 /*&& !scroll.isDecelerating*/:
+            case .down where scroll.contentOffset.y <= 0 /* && !scroll.isDecelerating */:
                 applyTranslation(dy: dy - lastY)
                 scroll.contentOffset.y = 0
                 lastContentOffset = .zero
@@ -475,14 +476,13 @@ public class UBottomSheetCoordinator: NSObject {
         lastY = dy
     }
 
-
     /**
      Check if current top y position is one of the UBottomSheetCoordinatorDataSource#sheetPositions(availableHeight)
 
      - parameter point: current top y position
      */
     private func isSheetPosition(_ point: CGFloat) -> Bool {
-        return dataSource.sheetPositions(availableHeight).first(where: { (p) -> Bool in
+        return dataSource.sheetPositions(availableHeight).first(where: { p -> Bool in
             abs(p - point) < tolerance
         }) != nil
     }
@@ -517,7 +517,7 @@ public class UBottomSheetCoordinator: NSObject {
      */
     private func filteredPositions(_ velocity: CGPoint, currentPosition: CGFloat) -> [CGFloat] {
         if velocity.y < -100 { /// dragging up
-            let data = dataSource.sheetPositions(availableHeight).filter { (p) -> Bool in
+            let data = dataSource.sheetPositions(availableHeight).filter { p -> Bool in
                 p < currentPosition
             }
 
@@ -527,7 +527,7 @@ public class UBottomSheetCoordinator: NSObject {
                 return data
             }
         } else if velocity.y > 100 { /// dragging down
-            let data = dataSource.sheetPositions(availableHeight).filter { (p) -> Bool in
+            let data = dataSource.sheetPositions(availableHeight).filter { p -> Bool in
                 p > currentPosition
             }
             if data.isEmpty {
@@ -562,12 +562,12 @@ public class UBottomSheetCoordinator: NSObject {
         var newY = oldFrame.minY
 
         if hasExceededTopLimit(oldFrame.minY + dy, topLimit) {
-            let yy = min(0 , topLimit - oldFrame.minY)
+            let yy = min(0, topLimit - oldFrame.minY)
             totalTranslationMinY -= (dy - yy)
             totalTranslationMaxY = maxSheetPosition!
             newY = dataSource.rubberBandLogicTop(totalTranslationMinY, topLimit)
         } else if hasExceededBottomLimit(oldFrame.minY + dy, bottomLimit) {
-            let yy = max(0 , bottomLimit - oldFrame.minY)
+            let yy = max(0, bottomLimit - oldFrame.minY)
             totalTranslationMinY = minSheetPosition!
             totalTranslationMaxY += (dy - yy)
             newY = dataSource.rubberBandLogicBottom(totalTranslationMaxY, bottomLimit)
@@ -581,8 +581,8 @@ public class UBottomSheetCoordinator: NSObject {
         let frame = CGRect(x: padding, y: newY, width: parent.view.frame.width - 2*padding, height: height)
         container?.frame = frame
 
-        self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
-                                   didChange: .progressing(frame.minY, calculatePercent(at: frame.minY)))
+        delegate?.bottomSheet(container, item: item, parent: parent,
+                              didChange: .progressing(frame.minY, calculatePercent(at: frame.minY)))
     }
 
     /**
@@ -596,7 +596,7 @@ public class UBottomSheetCoordinator: NSObject {
         endTranslate(to: y, animated: true)
     }
 
-    //to ignore previous animation completion events
+    // to ignore previous animation completion events
     private var lastAnimatedValue: CGFloat = 0.0
 
     /**
@@ -613,35 +613,35 @@ public class UBottomSheetCoordinator: NSObject {
         let height = max(availableHeight - minSheetPosition!, availableHeight - position)
         let frame = CGRect(x: padding, y: position, width: parent.view.bounds.width - 2*padding, height: height)
 
-        self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
-                                   didChange: .willFinish(position, self.calculatePercent(at: position)))
+        delegate?.bottomSheet(container, item: item, parent: parent,
+                              didChange: .willFinish(position, calculatePercent(at: position)))
 
         if animated {
-            self.lastAnimatedValue = position
+            lastAnimatedValue = position
             dataSource.animator?.animate(animations: {
-                self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent, finishTranslateWith: { (anim) in
+                self.delegate?.bottomSheet(self.container, item: self.item, parent: self.parent, finishTranslateWith: { anim in
                     anim(self.calculatePercent(at: position))
                 })
                 self.container!.frame = frame
                 self.parent.view.layoutIfNeeded()
-            }, completion: { finished in
+            }, completion: { _ in
                 if self.lastAnimatedValue != position {
                     return
                 }
-                self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
+                self.delegate?.bottomSheet(self.container, item: self.item, parent: self.parent,
                                            didChange: .finished(position, self.calculatePercent(at: position)))
                 if position >= self.availableHeight {
                     self.removeSheet()
                 }
             })
         } else {
-            self.container!.frame = frame
-            self.delegate?.bottomSheet(self.container,item: self.item,parent: self.parent,
-                                       didChange: .finished(position, self.calculatePercent(at: position)))
+            container!.frame = frame
+            delegate?.bottomSheet(container, item: item, parent: parent,
+                                  didChange: .finished(position, calculatePercent(at: position)))
         }
     }
 
-    //MARK: Utility functions
+    // MARK: Utility functions
 
     /**
      Sheet translation in precent.
@@ -651,7 +651,7 @@ public class UBottomSheetCoordinator: NSObject {
      - parameter pos: current top constraint value
      */
     private func calculatePercent(at pos: CGFloat) -> CGFloat {
-        return (availableHeight - pos) / (availableHeight - minSheetPosition!) * 100
+        return (availableHeight - pos) / (availableHeight - minSheetPosition!)*100
     }
 
     /**
@@ -673,19 +673,17 @@ public class UBottomSheetCoordinator: NSObject {
     private func hasExceededBottomLimit(_ constant: CGFloat, _ limit: CGFloat) -> Bool {
         return (constant - limit) > tolerance
     }
-
 }
 
 // MARK: UIGestureRecognizerDelegate
 
-extension UBottomSheetCoordinator: UIGestureRecognizerDelegate{
-
+extension UBottomSheetCoordinator: UIGestureRecognizerDelegate {
     /// Ignore back view pan gesture recognizers if there is a scrollview and alwaysBounceVertical is set to true.
     /// See https://github.com/OfTheWolf/UBottomSheet/issues/50
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        if let scrollView = otherGestureRecognizer.view as? UIScrollView{
+        if let scrollView = otherGestureRecognizer.view as? UIScrollView {
             return scrollView.alwaysBounceVertical
-        }else{
+        } else {
             return true
         }
     }
