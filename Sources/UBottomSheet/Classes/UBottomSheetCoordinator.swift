@@ -50,6 +50,15 @@ public class UBottomSheetCoordinator: NSObject {
         }
     }
 
+    public func getCurrentPosition() -> CGFloat {
+          return container?.frame.minY ?? 0
+      }
+
+    public func getCurrentSheetPosition() -> CGFloat {
+        let currentPosition = getCurrentPosition()
+        return dataSource.sheetPositions(availableHeight).nearest(to: currentPosition)
+    }
+
     /**
      Creates UBottomSheetCoordinator object.
 
